@@ -3,7 +3,6 @@ from urllib.parse import urlparse, parse_qs
 from cowpy import cow
 import json
 
-
 class OkRequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
@@ -34,9 +33,16 @@ class OkRequestHandler(BaseHTTPRequestHandler):
 
         elif parsed_path.path == '/cows':
             bun = cow.Bunny()
-            if parsed_qs['msg']:
+            print(parsed_qs)
+            try:
                 msg = bun.milk(parsed_qs['msg'][0])
 
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(html.format(msg).encode())
+            except:
+                msg = '400 Bad Request.'
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
                 self.end_headers()
@@ -62,6 +68,7 @@ class OkRequestHandler(BaseHTTPRequestHandler):
             post_data += tmp_list[i] + " "
         
         parsed_path = urlparse(self.path)
+
 
         if parsed_path.path == '/cows':
             bun = cow.Bunny()
