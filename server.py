@@ -6,6 +6,7 @@ import json
 class OkRequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
+        print('do_GET')
         html = """
                 <!DOCTYPE html>
                 <html>
@@ -22,8 +23,11 @@ class OkRequestHandler(BaseHTTPRequestHandler):
                 </body>
                 </html>
                 """
+        # import pdb; pdb.set_trace()
         parsed_path = urlparse(self.path)
         parsed_qs = parse_qs(parsed_path.query)
+
+        print('path', parsed_path.path)
 
         if parsed_path.path == '/':
             self.send_response(200)
@@ -32,8 +36,9 @@ class OkRequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(html.format(' ').encode())
 
         elif parsed_path.path == '/cows':
+            print('got /cows')
             bun = cow.Bunny()
-            print(parsed_qs)
+
             try:
                 msg = bun.milk(parsed_qs['msg'][0])
 
@@ -43,8 +48,12 @@ class OkRequestHandler(BaseHTTPRequestHandler):
                 self.wfile.write(html.format(msg).encode())
             except:
                 print('400 Bad Request.')
+                self.send_response_only(400)
+                self.end_headers()
         else:
             print('404 Not Found.')
+            self.send_response_only(404)
+            self.end_headers()
 
 
     def do_POST(self):
@@ -54,7 +63,6 @@ class OkRequestHandler(BaseHTTPRequestHandler):
         tmp_array = post_data.split("=")
         tmp_list = tmp_array[1].split("+")
 
-        print(tmp_list)
         post_data = ""
         for i in range(len(tmp_list)):
             post_data += tmp_list[i] + " "
@@ -62,7 +70,7 @@ class OkRequestHandler(BaseHTTPRequestHandler):
         parsed_path = urlparse(self.path)
 
         # if parsed_path.path == '/cows':
-        try:
+        if parsed_path.path :
             bun = cow.Bunny()
             msg = bun.milk(post_data)
             self.send_response(200)
@@ -71,8 +79,8 @@ class OkRequestHandler(BaseHTTPRequestHandler):
 
             reply = json.dumps(msg)
             self.wfile.write(reply.encode())
-        except:
-            print('404 Not found.')
+        # except:
+        #     print('404 Not found.')
 
 if __name__ == '__main__':
     server_addr = ('', 5000)
