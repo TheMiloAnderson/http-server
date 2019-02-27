@@ -42,18 +42,10 @@ class OkRequestHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(html.format(msg).encode())
             except:
-                msg = '400 Bad Request.'
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
-                self.end_headers()
-                self.wfile.write(html.format(msg).encode())
-
+                print('400 Bad Request.')
         else:
-            msg = '404 Not Found.'
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write(html.format(msg).encode())
+            print('404 Not Found.')
+
 
     def do_POST(self):
 
@@ -61,24 +53,26 @@ class OkRequestHandler(BaseHTTPRequestHandler):
         post_data = self.rfile.read(cont_len).decode()
         tmp_array = post_data.split("=")
         tmp_list = tmp_array[1].split("+")
-        
+
         print(tmp_list)
         post_data = ""
         for i in range(len(tmp_list)):
             post_data += tmp_list[i] + " "
-        
+
         parsed_path = urlparse(self.path)
 
-
-        if parsed_path.path == '/cows':
+        # if parsed_path.path == '/cows':
+        try:
             bun = cow.Bunny()
             msg = bun.milk(post_data)
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            
+
             reply = json.dumps(msg)
             self.wfile.write(reply.encode())
+        except:
+            print('404 Not found.')
 
 if __name__ == '__main__':
     server_addr = ('', 5000)
