@@ -47,12 +47,8 @@ class OkRequestHandler(BaseHTTPRequestHandler):
             self.send_error(404)
 
     def do_POST(self):
-        cont_len = int(self.headers.get('Content-Length'))
-        post_data = self.rfile.read(cont_len).decode()
-
         parsed_path = urlparse(self.path)
         parsed_qs = parse_qs(parsed_path.query)
-
         if parsed_path.path == '/cows':
             if 'msg' in parsed_qs.keys():
                 bun = cow.Bunny()
@@ -60,7 +56,6 @@ class OkRequestHandler(BaseHTTPRequestHandler):
                 self.send_response(200)
                 self.send_header('Content-type', 'application/json')
                 self.end_headers()
-
                 reply = json.dumps(msg)
                 self.wfile.write(reply.encode())
             else:
